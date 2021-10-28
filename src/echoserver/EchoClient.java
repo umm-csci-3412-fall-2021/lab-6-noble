@@ -57,4 +57,16 @@ public class EchoClient {
         System.err.println(ioe);
       }
     }
+
+    public class WriteFromInputThread implements Runnable {
+      public void run() {
+        
+      }
+    }
+
+    public class WriteFromOutputThread implements Runnable {
+      public void run() {
+
+      }
+    }
 }
