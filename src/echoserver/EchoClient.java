@@ -84,8 +84,37 @@ public class EchoClient {
     }
 
     public class WriteFromInputThread implements Runnable {
+      Socket workSocket;
+      OutputStream workOutStream;
+
+      public WriteFromInputThread(Socket workSocket, OutputStream workOutStream) {
+        this.workSocket = workSocket;
+        this.workOutStream = workOutStream;
+      }
+
       public void run() {
-        //
+        try {
+          // Initialize the variable to contain bytes sent to the server.
+        int sentByte = System.in.read();
+
+        // Facilitate the writing and re-sending of the bytes sent to the server back
+        // to the client.
+        while((sentByte) != -1) {
+          // Write the byte taken in to the output stream for the socket.
+          workOutStream.write(sentByte);
+
+          // Get the next byte being sent by the client.
+          sentByte = System.in.read();
+        }
+
+        workOutStream.flush();
+
+        workSocket.shutdownInput();
+
+        } catch (IOException ioe) {
+          System.out.println("We caught an unexpected exception while reading the input:");
+          System.err.println(ioe);
+        }
       }
     }
 
