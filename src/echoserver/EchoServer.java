@@ -65,13 +65,13 @@ public class EchoServer {
 
         while((sentByte) != -1) {
           // Write the byte taken in to the output stream for the socket.
-          System.out.write(sentByte);
+          workOutStream.write(sentByte);
           // Read a byte from the input stream and write it to the system's output.
           sentByte = workInStream.read();
         }
         
         // Flush the output stream.
-        System.out.flush();
+        workOutStream.flush();
 
         // Shutdown the output to the socket.
         workSocket.shutdownOutput();
