@@ -74,11 +74,11 @@ public class EchoClient {
 
             // Get the next byte being sent by the client.
             sentByte = System.in.read();
-          }
+        }
 
-          workOutStream.flush();
+        workOutStream.flush();
 
-          workSocket.shutdownInput();
+        workSocket.shutdownOutput();
 
         } catch (IOException ioe) {
           System.out.println("We caught an unexpected exception while reading the input:");
@@ -109,11 +109,11 @@ public class EchoClient {
               // Read a byte from the input stream and write it to the system's output.
               System.out.write(receivedByte);
               receivedByte = workInStream.read();
-            }
+          }
 
-            System.out.flush();
+          System.out.flush();
 
-            workSocket.shutdownInput();
+          workSocket.shutdownInput();
 
           } catch (IOException ioe) {
             System.out.println("We caught an unexpected exception while reading the input:");
