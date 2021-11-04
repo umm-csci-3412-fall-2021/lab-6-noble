@@ -56,4 +56,19 @@ public class EchoServer {
       clientSocket.close();
     }
   }
+
+  public class clientThread implements Runnable {
+    Socket workSocket;
+    InputStream workInStream;
+
+    public clientThread(Socket sockWorkSocket, InputStream sockWorkInStream) {
+      this.workSocket = sockWorkSocket;
+      this.workInStream = sockWorkInStream;
+    }
+
+    public void run() {
+      
+    }
+
+  }
 }
