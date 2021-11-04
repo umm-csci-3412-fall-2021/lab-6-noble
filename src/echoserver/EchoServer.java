@@ -30,45 +30,55 @@ public class EchoServer {
       Socket clientSocket = serverSocket.accept();
       System.out.println("Got a request!");
 
-      // Get the input stream from the client's socket so that we can read from it
-      InputStream input = clientSocket.getInputStream();
+      // Creates an intermediary agent for working between the server and the client, while gathering the client's socket
+      Intermediary clientServerIntermediary = new Intermediary(clientSocket);
 
-      // Get the output stream of the client's socket so that we can write to it
-      OutputStream output = clientSocket.getOutputStream();
-
-      // A variable for storing the bytes sent
-      int sentByte;
-
-      // Facilitate the writing of the bytes sent and received to the client's output
-      // stream
-      while ((sentByte = input.read()) != -1) {
-        // Write a byte to the output
-        output.write(sentByte);
-        // Flush the output after each write.
-        output.flush();
-      }
-
-      System.out.println("The request has been processed.");
-      // Shutdown the output of the client socket so that no more bytes can be written
-      // to it
-      clientSocket.shutdownOutput();
-      // Close the client socket completely
-      clientSocket.close();
+      // Once the intermediary is made, a thread is created for the client. Then, it is executed.
+      Thread intermediaryThread = new Thread(clientServerIntermediary);
+      clientThreads.execute(intermediaryThread);
     }
   }
 
-  public class clientThread implements Runnable {
+  public class Intermediary implements Runnable {
+    // These fields consist of the socket and streams that the client will use for
+    // working with the server
     Socket workSocket;
     InputStream workInStream;
+    OutputStream workOutStream;
 
-    public clientThread(Socket sockWorkSocket, InputStream sockWorkInStream) {
+    // Create the client thread using the socket; the streams will be created for it
+    // later in the run method due to the use of get methods
+    public Intermediary(Socket sockWorkSocket) {
       this.workSocket = sockWorkSocket;
-      this.workInStream = sockWorkInStream;
     }
 
     public void run() {
-      
-    }
+      try {
+        // Get the input from the socket
+        this.workInStream = workSocket.getInputStream();
 
+        // Get the output from the socket
+        this.workOutStream = workSocket.getOutputStream();
+
+        // Get the first byte sent by client
+        int sentByte = workInStream.read();
+
+        while((sentByte) != -1) {
+          // Write the byte taken in to the output stream for the socket.
+          System.out.write(sentByte);
+          // Read a byte from the input stream and write it to the system's output.
+          sentByte = workInStream.read();
+        }
+        
+        // Flush the output stream.
+        System.out.flush();
+
+        // Shutdown the output to the socket.
+        workSocket.shutdownOutput();
+
+      } catch(IOException inOut) {
+        System.out.println("There's an issue with the input/output: " + inOut);
+      }
+    }
   }
 }

@@ -116,9 +116,9 @@ public class EchoClient {
 
         workSocket.shutdownInput();
 
-      } catch (IOException ioe) {
+      } catch (IOException inOut) {
         System.out.println("We caught an unexpected exception while reading the input:");
-        System.err.println(ioe);
+        System.err.println(inOut);
       }
     }
   }
