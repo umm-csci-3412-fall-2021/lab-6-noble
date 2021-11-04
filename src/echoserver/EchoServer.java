@@ -1,49 +1,84 @@
 package echoserver;
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+// These imports in particular are used for the thread pool service. 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EchoServer {
   public static final int portNumber = 6013;
 
-  public static void main(String[] args) {
-    try {
-      // Start listening on the specified port
-      ServerSocket serverSocket = new ServerSocket(portNumber);
+  public static void main(String[] args) throws IOException {
+    EchoServer server = new EchoServer();
+    server.start();
+  }
 
-      // Run forever, which is common for server style services
-      while (true) {
-        // Wait until someone connects, thereby requesting a date
-        Socket clientSocket = serverSocket.accept();
-        System.out.println("Got a request!");
-        
-        // Get the input stream from the client's socket so that we can read from it
-        InputStream input = clientSocket.getInputStream();
+  private void start() throws IOException {
+    // Initialized a cached thread pool for running the service; this will
+    // provide the greatest leniency for allowing multiple clients to connect
+    ExecutorService clientThreads = Executors.newCachedThreadPool();
 
-        // Get the output stream of the client's socket so that we can write to it
-        OutputStream output = clientSocket.getOutputStream();
+    // Start listening on the specified port
+    ServerSocket serverSocket = new ServerSocket(portNumber);
 
-        // A variable for storing the bytes sent
-        int sentByte;
+    // Run forever, which is common for server style services
+    while (true) {
+      // Wait until someone connects, thereby requesting a date
+      Socket clientSocket = serverSocket.accept();
+      System.out.println("Got a request!");
 
-        // Facilitate the writing of the bytes sent and received to the client's output
-        // stream
-        while((sentByte = input.read()) != -1) {
-          // Write a byte to the output
-          output.write(sentByte);
-          // Flush the output after each write.
-          output.flush();
+      // Creates an intermediary agent for working between the server and the client, while gathering the client's socket
+      Intermediary clientServerIntermediary = new Intermediary(clientSocket);
+
+      // Once the intermediary is made, a thread is created for the client. Then, it is executed.
+      Thread intermediaryThread = new Thread(clientServerIntermediary);
+      clientThreads.execute(intermediaryThread);
+    }
+  }
+
+  public class Intermediary implements Runnable {
+    // These fields consist of the socket and streams that the client will use for
+    // working with the server
+    Socket workSocket;
+    InputStream workInStream;
+    OutputStream workOutStream;
+
+    // Create the client thread using the socket; the streams will be created for it
+    // later in the run method due to the use of get methods
+    public Intermediary(Socket sockWorkSocket) {
+      this.workSocket = sockWorkSocket;
+    }
+
+    public void run() {
+      try {
+        // Get the input from the socket
+        this.workInStream = workSocket.getInputStream();
+
+        // Get the output from the socket
+        this.workOutStream = workSocket.getOutputStream();
+
+        // Get the first byte sent by client
+        int sentByte = workInStream.read();
+
+        while((sentByte) != -1) {
+          // Write the byte taken in to the output stream for the socket.
+          workOutStream.write(sentByte);
+          // Read a byte from the input stream and write it to the system's output.
+          sentByte = workInStream.read();
         }
         
-        System.out.println("The request has been processed.");
-        // Shutdown the output of the client socket so that no more bytes can be written to it
-        clientSocket.shutdownOutput();
-        // Close the client socket completely
-        clientSocket.close();
+        // Flush the output stream.
+        workOutStream.flush();
+
+        // Shutdown the output to the socket.
+        workSocket.shutdownOutput();
+
+      } catch(IOException inOut) {
+        System.out.println("There's an issue with the input/output: " + inOut);
       }
-    // *Very* minimal error handling.
-    } catch (IOException ioe) {
-      System.out.println("We caught an unexpected exception:");
-      System.err.println(ioe);
     }
   }
 }
