@@ -1,31 +1,49 @@
 package echoserver;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
+import java.io.*;
 
 public class EchoServer {
-	
-	// REPLACE WITH PORT PROVIDED BY THE INSTRUCTOR
-	public static final int PORT_NUMBER = 0; 
-	public static void main(String[] args) throws IOException, InterruptedException {
-		EchoServer server = new EchoServer();
-		server.start();
-	}
+  public static final int portNumber = 6013;
 
-	private void start() throws IOException, InterruptedException {
-		ServerSocket serverSocket = new ServerSocket(PORT_NUMBER);
-		while (true) {
-			Socket socket = serverSocket.accept();
+  public static void main(String[] args) {
+    try {
+      // Start listening on the specified port
+      ServerSocket serverSocket = new ServerSocket(portNumber);
 
-			// Put your code here.
-			// This should do very little, essentially:
-			//   * Construct an instance of your runnable class
-			//   * Construct a Thread with your runnable
-			//      * Or use a thread pool
-			//   * Start that thread
-		}
-	}
+      // Run forever, which is common for server style services
+      while (true) {
+        // Wait until someone connects, thereby requesting a date
+        Socket clientSocket = serverSocket.accept();
+        System.out.println("Got a request!");
+        
+        // Get the input stream from the client's socket so that we can read from it
+        InputStream input = clientSocket.getInputStream();
+
+        // Get the output stream of the client's socket so that we can write to it
+        OutputStream output = clientSocket.getOutputStream();
+
+        // A variable for storing the bytes sent
+        int sentByte;
+
+        // Facilitate the writing of the bytes sent and received to the client's output
+        // stream
+        while((sentByte = input.read()) != -1) {
+          // Write a byte to the output
+          output.write(sentByte);
+          // Flush the output after each write.
+          output.flush();
+        }
+        
+        System.out.println("The request has been processed.");
+        // Shutdown the output of the client socket so that no more bytes can be written to it
+        clientSocket.shutdownOutput();
+        // Close the client socket completely
+        clientSocket.close();
+      }
+    // *Very* minimal error handling.
+    } catch (IOException ioe) {
+      System.out.println("We caught an unexpected exception:");
+      System.err.println(ioe);
+    }
+  }
 }
