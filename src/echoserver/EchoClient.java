@@ -47,30 +47,8 @@ public class EchoClient {
         } catch (InterruptedException ie) {
           System.out.println("We've caught an interrupted exception: " + ie.getMessage());
         }
-
-        // Initialize the variable to contain bytes sent to the server.
-        int sentByte = System.in.read();
-
-        // Facilitate the writing and re-sending of the bytes sent to the server back
-        // to the client.
-        while((sentByte) != -1) {
-          // Write the byte taken in to the output stream for the socket.
-          outStream.write(sentByte);
-            
-          // Read a byte from the input stream and write it to the system's output.
-          int receivedByte = inStream.read();
-          System.out.write(receivedByte);
-
-          // Get the next byte being sent by the client.
-          sentByte = System.in.read();
-        }
-
-        //Flush the stream for the system and the server socket outputs.
-        System.out.flush();
-        outStream.flush();
-        // Shutdown the socket's output.
-        serverSocket.shutdownOutput();
-        // Close the socket.
+        
+        // Once all the work is completed, close the server socket
         serverSocket.close();
   
       // Provide some minimal error handling.
