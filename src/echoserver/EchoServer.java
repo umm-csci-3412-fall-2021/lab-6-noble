@@ -4,6 +4,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+// These imports in particular are used for the thread pool service. 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class EchoServer {
   public static final int portNumber = 6013;
@@ -14,6 +17,10 @@ public class EchoServer {
   }
 
   private void start() throws IOException {
+    // Initialized a cached thread pool for running the service; this will
+    // provide the greatest leniency for allowing multiple clients to connect
+    ExecutorService clientThreads = Executors.newCachedThreadPool();
+
     // Start listening on the specified port
     ServerSocket serverSocket = new ServerSocket(portNumber);
 
