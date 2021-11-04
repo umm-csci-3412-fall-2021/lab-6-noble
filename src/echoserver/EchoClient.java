@@ -56,29 +56,29 @@ public class EchoClient {
       Socket workSocket;
       OutputStream workOutStream;
 
-      public WriteFromInputThread(Socket workSocket, OutputStream workOutStream) {
-        this.workSocket = workSocket;
-        this.workOutStream = workOutStream;
+      public WriteFromInputThread(Socket sockWorkSocket, OutputStream sockWorkOutStream) {
+        this.workSocket = sockWorkSocket;
+        this.workOutStream = sockWorkOutStream;
       }
 
       public void run() {
         try {
           // Initialize the variable to contain bytes sent to the server.
-        int sentByte = System.in.read();
+          int sentByte = System.in.read();
 
-        // Facilitate the writing and re-sending of the bytes sent to the server back
-        // to the client.
-        while((sentByte) != -1) {
+          // Facilitate the writing and re-sending of the bytes sent to the server back
+          // to the client.
+          while((sentByte) != -1) {
           // Write the byte taken in to the output stream for the socket.
-          workOutStream.write(sentByte);
+            workOutStream.write(sentByte);
 
-          // Get the next byte being sent by the client.
-          sentByte = System.in.read();
-        }
+            // Get the next byte being sent by the client.
+            sentByte = System.in.read();
+          }
 
-        workOutStream.flush();
+          workOutStream.flush();
 
-        workSocket.shutdownInput();
+          workSocket.shutdownInput();
 
         } catch (IOException ioe) {
           System.out.println("We caught an unexpected exception while reading the input:");
@@ -91,28 +91,29 @@ public class EchoClient {
       Socket workSocket;
       InputStream workInStream;
 
-      public WriteFromOutputThread(Socket workSocket, InputStream sockWorkInStream) {
-        this.workSocket = workSocket;
+      public WriteFromOutputThread(Socket sockWorkSocket, InputStream sockWorkInStream) {
+        this.workSocket = sockWorkSocket;
         this.workInStream = sockWorkInStream;
       }
+
       public void run() {
           try {
             // Initialize the variable to contain bytes sent to the server.
-          int receivedByte = workInStream.read();
+              int receivedByte = workInStream.read();
   
-          // Facilitate the writing and re-sending of the bytes sent to the server back
-          // to the client.
-          while((receivedByte) != -1) {
-            // Write the byte taken in to the output stream for the socket.
+            // Facilitate the writing and re-sending of the bytes sent to the server back
+            // to the client.
+            while((receivedByte) != -1) {
+              // Write the byte taken in to the output stream for the socket.
               
-            // Read a byte from the input stream and write it to the system's output.
-            System.out.write(receivedByte);
-            receivedByte = workInStream.read();
-          }
+              // Read a byte from the input stream and write it to the system's output.
+              System.out.write(receivedByte);
+              receivedByte = workInStream.read();
+            }
 
-          System.out.flush();
+            System.out.flush();
 
-          workSocket.shutdownInput();
+            workSocket.shutdownInput();
 
           } catch (IOException ioe) {
             System.out.println("We caught an unexpected exception while reading the input:");
