@@ -24,13 +24,13 @@ public class EchoClient {
         OutputStream outStream = serverSocket.getOutputStream();
 
         // Initialize the runnable writer drawing from the input
-        WriteFromInputThread inputWriter = new WriteFromInputThread();
+        WriteFromInputThread inputWriter = new WriteFromInputThread(serverSocket, outStream);
 
         // Creates a thread for the input, using the input stream from the socket
         Thread inputThread = new Thread(inputWriter);
 
         // Initialize the runnable writer drawing from the output
-        WriteFromOutputThread outputWriter = new WriteFromOutputThread();
+        WriteFromOutputThread outputWriter = new WriteFromOutputThread(serverSocket, inStream);
 
         // Creates a thread for the output, using the output stream from the socket
         Thread outputThread = new Thread(outputWriter);
